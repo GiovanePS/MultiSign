@@ -1,5 +1,5 @@
 ############# CC FLAGS ###############################
-NAME = challenge.out
+NAME = mltsgn
 CC = g++
 CPPFLAGS = -g -std=c++98
 DEFS = -DFIPS
