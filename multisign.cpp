@@ -2,22 +2,27 @@
 #include <vector>
 #include <fstream>
 #include <RSAKeyPair.h>
+#include <Signer.h>
+#include <AsymmetricKey.h>
 
-int main(int argc, char **argv) {
+int main(int argc, char* argv[]) {
 	
 	// std::ifstream pdfFile(argv[1]); // PDF de entrada.
-	std::ofstream outputFile("rsa.priv");
+	std::ofstream outputFile("arquivo_estado");
 	int operadores;
-	std::vector<PrivateKey*> chaves_adicionadas;
+	std::vector<PublicKey*> chaves_adicionadas;
 	std::string key;
 
-	operadores = 3;
+	std::cout << "Quantos operadores: ";
+	std::cin >> operadores;
 
 	for (int i = 0; i < operadores; i++) {
-		chaves_adicionadas.push_back(RSAKeyPair(2048).getPrivateKey());
+		chaves_adicionadas.push_back(RSAKeyPair(2048).getPublicKey());
+		std::cout << chaves_adicionadas[i]->getPemEncoded();
+		outputFile << chaves_adicionadas[i]->getPemEncoded();
 	}
 
-	outputFile << chaves_adicionadas[1]->getPemEncoded();
+
 
 	//Função para assinar o pdfFile com cada key de chaves_adicionadas.
 
