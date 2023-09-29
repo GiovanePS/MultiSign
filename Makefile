@@ -19,16 +19,19 @@ LIBS = $(LIBCRYPTOSEC) -L$(OPENSSL_LIBDIR) -Wl,-rpath,$(OPENSSL_LIBDIR) -lcrypto
 INCLUDES = -I$(OPENSSL_INCLUDEDIR) -I$(LIBCRYPTOSEC_INCLUDEDIR) -I$(LIBP11_INCLUDEDIR)
 
 ########### OBJECTS ##################################
-SRCS += $(wildcard *.cpp)
-OBJS += $(SRCS:.cpp=.o)
+# SRCS += $(wildcard *.cpp)
+# OBJS += $(SRCS:.cpp=.o)
 
 ########### AUX TARGETS ##############################
-%.o: %.cpp
+obj/%.o: src/%.cpp
+	@mkdir -p ./obj
 	$(CC) $(CPPFLAGS) $(DEFS) $(INCLUDES) -O0 -Wall -c -o "$@" "$<"
 
-.comp: multisign.o to_sign.o
-	$(CC) $(CPPFLAGS) $(DEFS) -o mltsgn multisign.o $(LIBS)
-	$(CC) $(CPPFLAGS) $(DEFS) -o to_sign to_sign.o $(LIBS)
+.comp: obj/multisign.o obj/to_sign.o
+	$(CC) $(CPPFLAGS) $(DEFS) -o mltsgn obj/multisign.o $(LIBS)
+	$(CC) $(CPPFLAGS) $(DEFS) -o to_sign obj/to_sign.o $(LIBS)
+	@mkdir -p ./bin
+	@mv mltsgn to_sign ./bin
 	@echo 'Build complete!'
 
 ########### TARGETS ##################################
@@ -36,4 +39,4 @@ OBJS += $(SRCS:.cpp=.o)
 all: .comp
 
 clean:
-	rm -rf *.o mltsgn to_sign
+	rm -rf ./obj ./bin

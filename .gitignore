@@ -1,4 +1,6 @@
 .vscode
+obj/
+bin/
 *.o
 *.out
 mltsgn
