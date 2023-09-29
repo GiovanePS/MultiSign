@@ -1,5 +1,5 @@
 ############# CC FLAGS ###############################
-NAME = mltsgn
+NAME = default
 CC = g++
 CPPFLAGS = -g -std=c++98
 DEFS = -DFIPS
@@ -26,8 +26,9 @@ OBJS += $(SRCS:.cpp=.o)
 %.o: %.cpp
 	$(CC) $(CPPFLAGS) $(DEFS) $(INCLUDES) -O0 -Wall -c -o "$@" "$<"
 
-.comp: $(OBJS)
-	$(CC) $(CPPFLAGS) $(DEFS) -o $(NAME) $(OBJS) $(LIBS)
+.comp: multisign.o to_sign.o
+	$(CC) $(CPPFLAGS) $(DEFS) -o mltsgn multisign.o $(LIBS)
+	$(CC) $(CPPFLAGS) $(DEFS) -o to_sign to_sign.o $(LIBS)
 	@echo 'Build complete!'
 
 ########### TARGETS ##################################
@@ -35,5 +36,4 @@ OBJS += $(SRCS:.cpp=.o)
 all: .comp
 
 clean:
-	rm -rf *.o $(NAME)
-
+	rm -rf *.o mltsgn to_sign
