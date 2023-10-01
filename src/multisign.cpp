@@ -69,14 +69,13 @@ int main(int argc, char* argv[]) {
 			MessageDigest msgDgst = MessageDigest(MessageDigest::SHA256);
 
 			ByteArray bufferByteArray;
-			char buffer[4096];
-			while (docInputFile.read(buffer, sizeof(buffer))) {
-				cout << buffer;
-				bufferByteArray = buffer;
+			string buffer;
+			while (getline(docInputFile, buffer)) {
+				bufferByteArray = buffer + '\n';
 				msgDgst.update(bufferByteArray);
 			}
 
-			mlt_keys_output << msgDgst.doFinal().toString();
+			mlt_keys_output << msgDgst.doFinal().toHex() << endl;
 			docInputFile.close();
 		} else {
 			cerr << "Arquivo não encontrado." << '\n';
