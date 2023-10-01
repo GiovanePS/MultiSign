@@ -89,5 +89,7 @@ int main(int argc, char* argv[]) {
 
 	mlt_keys_output.close();
 
+	cout << "MultiKeys criado com sucesso!" << endl;
+
 	return 0;
 }
