@@ -1,8 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <dirent.h>
-#include <ByteArray.h>
-#include <KeyPair.h>
+#include <MessageDigest.h>
 
 using std::cout;
 using std::endl;
@@ -12,7 +11,7 @@ using std::string;
 
 int main(int argc, char* argv[]) {
 	
-	if (argc < 3 || argc > 5) { // ALTERAR DEPOIS PARA ACEITAR SOMENTE 5 ARGUMENTOS.
+	if (argc != 5) {
 		cout << "Bad usage!" << '\n';
 		cout << "Leia a documentação" << endl;
 		return 1;
@@ -37,14 +36,14 @@ int main(int argc, char* argv[]) {
 
 					std::ifstream fileOpened(filepath.c_str(), std::ios::in);
 
-					if (fileOpened.is_open()) {
+					if (fileOpened) {
 						while (getline(fileOpened, line)) {
 							mlt_keys_output << line << '\n';
 						}
 
 						fileOpened.close();
 					} else {
-						cerr << "Ocorreu um erro ao abrir um dos arquivos." << '\n';
+						cerr << "Ocorreu um erro ao abrir um dos arquivos da pasta." << '\n';
 						cerr << "Deixe somente arquvos de chave pública na pasta." << endl;
 						return 1;
 					}
@@ -55,17 +54,41 @@ int main(int argc, char* argv[]) {
 			cerr << "Erro ao abrir pasta." << endl;
 			return 1;
 		}
+	} else {
+		cout << "Bad usage!" << '\n';
+		cout << "Leia a documentação" << endl;
+		return 1;
 	}
 
-	// string flag2 = argv[3];
-	// if (flag2 == "-i" || flag2 == "--input") {
-	// 	// Parte de abrir arquivo PDF que irá ser assinado.
-	// 	std::ifstream pdfFile(argv[4]);
-	// }
+	string flag2 = argv[3];
+	if (flag2 == "-i" || flag2 == "--input") {
+		// Abrir arquivo PDF que irá ser assinado.
+		std::ifstream docInputFile(argv[4], std::ios::binary);
 
-	// outputFile << bufferString;
+		if (docInputFile) {
+			MessageDigest msgDgst = MessageDigest(MessageDigest::SHA256);
 
-	// outputFile << output.toString();
+			ByteArray bufferByteArray;
+			char buffer[4096];
+			while (docInputFile.read(buffer, sizeof(buffer))) {
+				cout << buffer;
+				bufferByteArray = buffer;
+				msgDgst.update(bufferByteArray);
+			}
+
+			mlt_keys_output << msgDgst.doFinal().toString();
+			docInputFile.close();
+		} else {
+			cerr << "Arquivo não encontrado." << '\n';
+			return 1;
+		}
+	} else {
+		cout << "Bad usage!" << '\n';
+		cout << "Leia a documentação" << endl;
+		return 1;
+	}
+
+	mlt_keys_output.close();
 
 	return 0;
 }
