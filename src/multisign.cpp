@@ -49,6 +49,7 @@ int main(int argc, char* argv[]) {
 					}
 				}
 			}
+			mlt_keys_output << "END KEYS" << '\n';
 			closedir(dir);
 		} else {
 			cerr << "Erro ao abrir pasta." << endl;
@@ -75,6 +76,7 @@ int main(int argc, char* argv[]) {
 				msgDgst.update(bufferByteArray);
 			}
 
+			mlt_keys_output << "HASH" << '\n';
 			mlt_keys_output << msgDgst.doFinal().toHex() << endl;
 			docInputFile.close();
 		} else {

@@ -1,9 +1,12 @@
 #include <iostream>
 #include <fstream>
-// #include <Signer.h>
+#include <vector>
+#include <RSAPublicKey.h>
+#include <Signer.h>
 
 using std::cout;
 using std::endl;
+using std::cerr;
 
 int main(int argc, char* argv[]) {
 
@@ -19,6 +22,50 @@ int main(int argc, char* argv[]) {
 		cout << "Arquivo mlt_keys não encontrado." << endl;
 		return 1;
 	}
+
+    /*
+        Parte de desencriptar arquivo.
+    */
+
+    //PARTE DE LEITURA DE MLT_KEYS.
+    std::vector<RSAPublicKey> public_keys;
+    bool append_it = false;
+    bool in_keys_space = true;
+    bool is_hash = false;
+    std::string hash;
+    std::string public_keyString;
+    std::string line;
+    while (getline(mlt_keys, line)) {
+        if (line == "END KEYS") {
+            in_keys_space = false;
+        }
+
+        if (line == "HASH") {
+            is_hash = true;
+            continue;
+        }
+        
+        if (in_keys_space) {
+            if (line == "-----BEGIN PUBLIC KEY-----") {
+                append_it = true;
+            }
+
+            if (line == "-----END PUBLIC KEY-----") {
+                public_keyString += line;
+                public_keys.push_back(RSAPublicKey(public_keyString));
+                public_keyString.clear();
+                append_it = false;
+            }
+                
+            if (append_it) {
+                public_keyString += line + '\n';
+            }
+        }
+
+        if (is_hash) {
+            hash = line;
+        }
+    }
 
     if (argc == 1) {
         // Se algum operador já tiver assinado mas não completamente.
@@ -39,6 +86,8 @@ int main(int argc, char* argv[]) {
         cout << "Bad usage!" << '\n';
         cout << "Leia a documentação";
     }
+
+    //EDIÇÃO DE MLT_KEYS PARA REMOVER UMA PUBLIC KEY E ADICIONAR A ASSINATURA.
 
     return 0;
 }
