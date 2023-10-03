@@ -1,5 +1,4 @@
 ############# CC FLAGS ###############################
-NAME = default
 CC = g++
 CPPFLAGS = -g -std=c++98
 DEFS = -DFIPS
@@ -29,18 +28,16 @@ obj/%.o: src/%.cpp
 
 bin/mltsgn: obj/multisign.o
 	@mkdir -p ./bin
-	$(CC) $(CPPFLAGS) $(DEFS) -o bin/mltsgn obj/multisign.o $(LIBS)
+	$(CC) $(CPPFLAGS) $(DEFS) -o "$@" "$<" $(LIBS)
 
 bin/to_sign: obj/to_sign.o
 	@mkdir -p ./bin
-	$(CC) $(CPPFLAGS) $(DEFS) -o bin/to_sign obj/to_sign.o $(LIBS)
+	$(CC) $(CPPFLAGS) $(DEFS) -o "$@" "$<" $(LIBS)
 
 ########### TARGETS ##################################
 
 all: bin/mltsgn bin/to_sign
 	@echo 'Build complete!'
-
-.PHONY: all
 
 clean:
 	rm -rf ./obj ./bin

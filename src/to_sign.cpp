@@ -99,10 +99,12 @@ int main(int argc, char* argv[]) {
         RSAPrivateKey privateKey = RSAPrivateKey(privateKeyStr);
 
         bool found = false;
-        ByteArray hash = docHash;
+        ByteArray hash = std::string(docHash);
         ByteArray assinatura = Signer::sign(privateKey, hash, MessageDigest::SHA256);
+        cout << hash.toString() << endl;
         for (unsigned int i = 0; i < public_keys.size(); i++) {
             // ESTÁ TUDO DANDO TRUE: RESOLVER
+            cout << public_keys[i].getPemEncoded();
             cout << Signer::verify(public_keys[i], assinatura, hash, MessageDigest::SHA256) << endl;
             if (Signer::verify(public_keys[i], assinatura, hash, MessageDigest::SHA256)) {
                 cout << "Assinado com sucesso!" << endl;
