@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 #include <ByteArray.h>
 #include <RSAPublicKey.h>
 #include <RSAPrivateKey.h>
@@ -10,6 +11,8 @@
 using std::cout;
 using std::endl;
 using std::cerr;
+
+std::string hexValueInByteArray(std::string);
 
 int main(int argc, char* argv[]) {
 
@@ -32,7 +35,7 @@ int main(int argc, char* argv[]) {
 
     //PARTE DE LEITURA DE MLT_KEYS.
     std::vector<string> vectorStrPublicKeys;
-    std::vector<RSAPublicKey> public_keys;
+    std::vector<RSAPublicKey*> public_keys;
     bool append_it = false;
     bool in_keys_space = true;
     bool is_hash = false;
@@ -53,9 +56,10 @@ int main(int argc, char* argv[]) {
             if (line == "-----BEGIN PUBLIC KEY-----") {
                 append_it = true;
             } else if (line == "-----END PUBLIC KEY-----") {
-                public_keyString += line;
+                public_keyString += line + '\n';
                 vectorStrPublicKeys.push_back(public_keyString);
-                public_keys.push_back(RSAPublicKey(public_keyString));
+                RSAPublicKey* publicKey = new RSAPublicKey(public_keyString);
+                public_keys.push_back(publicKey);
                 public_keyString.clear();
                 append_it = false;
             }
@@ -98,15 +102,15 @@ int main(int argc, char* argv[]) {
 
         RSAPrivateKey privateKey = RSAPrivateKey(privateKeyStr);
 
+        bool verify;
         bool found = false;
-        ByteArray hash = std::string(docHash);
+        ByteArray hash = hexValueInByteArray(docHash);
         ByteArray assinatura = Signer::sign(privateKey, hash, MessageDigest::SHA256);
-        cout << hash.toString() << endl;
-        for (unsigned int i = 0; i < public_keys.size(); i++) {
-            // ESTÁ TUDO DANDO TRUE: RESOLVER
-            cout << public_keys[i].getPemEncoded();
-            cout << Signer::verify(public_keys[i], assinatura, hash, MessageDigest::SHA256) << endl;
-            if (Signer::verify(public_keys[i], assinatura, hash, MessageDigest::SHA256)) {
+
+        size_t public_keys_length = public_keys.size();
+        for (size_t i = 0; i < public_keys_length; i++) {
+            verify = Signer::verify(*(public_keys[i]), assinatura, hash, MessageDigest::SHA256);
+            if (verify) {
                 cout << "Assinado com sucesso!" << endl;
                 found = true;
                 break;
@@ -120,9 +124,24 @@ int main(int argc, char* argv[]) {
     } else {
         cout << "Bad usage!" << '\n';
         cout << "Leia a documentação";
+        return 1;
     }
 
     //EDIÇÃO DE MLT_KEYS PARA REMOVER UMA PUBLIC KEY E ADICIONAR A ASSINATURA.
 
     return 0;
+}
+
+std::string hexValueInByteArray(std::string docHash) {
+    std::string hexPair;
+    std::string hexAppend;
+    char caractere;
+    size_t docHash_length = docHash.size();
+    for (size_t i = 0; i < docHash_length; i += 2) {
+        hexPair = docHash.substr(i, 2);
+        caractere = strtoul(hexPair.c_str(), NULL, 16);
+        hexAppend += caractere;
+    }
+
+    return hexAppend;
 }
