@@ -27,16 +27,20 @@ obj/%.o: src/%.cpp
 	@mkdir -p ./obj
 	$(CC) $(CPPFLAGS) $(DEFS) $(INCLUDES) -O0 -Wall -c -o "$@" "$<"
 
-.comp: obj/multisign.o obj/to_sign.o
-	$(CC) $(CPPFLAGS) $(DEFS) -o mltsgn obj/multisign.o $(LIBS)
-	$(CC) $(CPPFLAGS) $(DEFS) -o to_sign obj/to_sign.o $(LIBS)
+bin/mltsgn: obj/multisign.o
 	@mkdir -p ./bin
-	@mv mltsgn to_sign ./bin
-	@echo 'Build complete!'
+	$(CC) $(CPPFLAGS) $(DEFS) -o bin/mltsgn obj/multisign.o $(LIBS)
+
+bin/to_sign: obj/to_sign.o
+	@mkdir -p ./bin
+	$(CC) $(CPPFLAGS) $(DEFS) -o bin/to_sign obj/to_sign.o $(LIBS)
 
 ########### TARGETS ##################################
 
-all: .comp
+all: bin/mltsgn bin/to_sign
+	@echo 'Build complete!'
+
+.PHONY: all
 
 clean:
 	rm -rf ./obj ./bin
