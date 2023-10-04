@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
             cout << "Todas as assinaturas foram coletadas!" << '\n';
             cout << "Assinaturas:" << '\n';
             for (size_t i = 0; i < assinaturas_length; i++) {
-                cout << assinaturas[i] << endl;
+                cout << assinaturas[i]->toHex() << endl;
             }
         }
         return 0;
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
         }
 
         if (!found) {
-            cerr << "Chave privada não corresponde a nenhuma chave privada presente em mlt_keys." << endl;
+            cerr << "Chave privada não corresponde a nenhuma chave pública presente em mlt_keys." << endl;
             return 1;
         }
     } else {
@@ -145,6 +145,7 @@ int main(int argc, char* argv[]) {
         cout << "Leia a documentação";
         return 1;
     }
+
 
     //EDIÇÃO DE MLT_KEYS PARA REMOVER UMA PUBLIC KEY E ADICIONAR A ASSINATURA.
     std::fstream mlt_keys_output("mlt_keys", std::ios::out);
