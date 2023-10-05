@@ -126,7 +126,13 @@ int main(int argc, char* argv[]) {
                 cout << assinaturas_names[i] << '\n';
                 cout << assinaturas[i]->toHex() << '\n';
             }
+            cout << "Acordo firmado!" << endl;
         }
+        return 0;
+    }
+
+    if (!public_keys_length) {
+        cout << "Não é possível adicionar novas assinaturas, pois todas necessárias já foram coletadas." << endl;
         return 0;
     }
 
