@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <dirent.h>
+#include <certificate/Certificate.h>
 #include <MessageDigest.h>
 
 using std::cout;
@@ -18,10 +19,11 @@ int main(int argc, char* argv[]) {
 	}
 
 	std::ofstream mlt_keys_output("mlt_keys", std::ios::out);
+	std::vector<string> names;
 
 	string flag1 = argv[1];
-	if (flag1 == "-s" || flag1 == "--signatures") {
-		// Iterando sobre a pasta dada como argumento de signatures, para guardar as chaves públicas em mlt_keys.
+	if (flag1 == "-c" || flag1 == "--certificates") {
+		// Iterando sobre a pasta dada como argumento de certificates, para guardar as chaves públicas dos certificados em mlt_keys.
 		char* folderPath = argv[2];
 		DIR* dir = opendir(folderPath);
 		if (dir) {
@@ -35,11 +37,17 @@ int main(int argc, char* argv[]) {
 					filepath = string(folderPath) + filename;
 
 					std::ifstream fileOpened(filepath.c_str(), std::ios::in);
+					string certificateStr;
 
 					if (fileOpened) {
 						while (getline(fileOpened, line)) {
-							mlt_keys_output << line << '\n';
+							certificateStr += line +'\n';
 						}
+
+						Certificate certificadoAtual = Certificate(certificateStr);
+						string nomeAtual = certificadoAtual.getSubject().getEntries(RDNSequence::COMMON_NAME)[0];
+						mlt_keys_output << certificadoAtual.getPublicKey()->getPemEncoded();
+						names.push_back(nomeAtual);
 
 						fileOpened.close();
 					} else {
