@@ -30,22 +30,35 @@ int main(int argc, char* argv[]) {
 	}
 
     /*
-        Parte de desencriptar arquivo.
+        Parte de desencriptar mlt_keys.
     */
 
-    //PARTE DE LEITURA DE MLT_KEYS.
+    // Parte de leitura de mlt_keys.
     std::vector<RSAPublicKey*> public_keys;
+    std::vector<string> names;
+    std::vector<string> assinaturas_names;
     std::vector<ByteArray*> assinaturas;
     bool in_keys_space = true;
+    bool in_names_space = false;
     bool is_hash = false;
     bool append_it = false;
     bool in_signs = false;
+    bool troca = true;
     std::string docHash;
     std::string public_keyString;
     std::string line;
     while (getline(mlt_keys, line)) {
         if (line == "END KEYS") {
             in_keys_space = false;
+        }
+
+        if (line == "END NAMES") {
+            in_names_space = false;
+        }
+
+        if (line == "NAMES") {
+            in_names_space = true;
+            continue;
         }
 
         if (line == "ASSINATURAS") {
@@ -75,9 +88,19 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        if (in_names_space) {
+            names.push_back(line);
+        }
+
         if (in_signs) {
-            ByteArray* assinaturaAtual = new ByteArray(hexValueInByteArray(line));
-            assinaturas.push_back(assinaturaAtual);
+            if (troca) {
+                assinaturas_names.push_back(line);
+                troca = false;
+            } else {
+                ByteArray* assinaturaAtual = new ByteArray(hexValueInByteArray(line));
+                assinaturas.push_back(assinaturaAtual);
+                troca = true;
+            }
         }
 
         if (is_hash) {
@@ -87,21 +110,27 @@ int main(int argc, char* argv[]) {
 
     mlt_keys.close();
     size_t public_keys_length = public_keys.size();
+    size_t names_length = names.size();
     size_t assinaturas_length = assinaturas.size();
 
     if (argc == 1) {
         if (public_keys_length) {
-            cout << "Faltam " << public_keys_length << " assinatura(s)." << endl;
+            cout << "Faltam as assinaturas de:" << '\n';
+            for (size_t i = 0; i < names_length; i++) {
+                std::cout << names[i] << '\n';
+            }
         } else {
             cout << "Todas as assinaturas foram coletadas!" << '\n';
             cout << "Assinaturas:" << '\n';
             for (size_t i = 0; i < assinaturas_length; i++) {
-                cout << assinaturas[i]->toHex() << endl;
+                cout << assinaturas_names[i] << '\n';
+                cout << assinaturas[i]->toHex() << '\n';
             }
         }
         return 0;
     }
 
+    string subjNameFound;
     ByteArray hash = hexValueInByteArray(docHash);
     ByteArray assinatura;
     std::string argv1 = argv[1];
@@ -121,7 +150,6 @@ int main(int argc, char* argv[]) {
         }
 
         RSAPrivateKey privateKey = RSAPrivateKey(privateKeyStr);
-
         bool verify;
         bool found = false;
         assinatura = Signer::sign(privateKey, hash, MessageDigest::SHA256);
@@ -131,6 +159,8 @@ int main(int argc, char* argv[]) {
             if (verify) {
                 cout << "Assinado com sucesso!" << endl;
                 public_keys.erase(public_keys.begin()+i);
+                subjNameFound = names[i];
+                names.erase(names.begin()+i);
                 found = true;
                 break;
             }
@@ -147,7 +177,7 @@ int main(int argc, char* argv[]) {
     }
 
 
-    //EDIÇÃO DE MLT_KEYS PARA REMOVER UMA PUBLIC KEY E ADICIONAR A ASSINATURA.
+    // Gerando um novo mlt_keys com a nova assinatura e a remoção da public key da assinatura.
     std::fstream mlt_keys_output("mlt_keys", std::ios::out);
     public_keys_length = public_keys.size();
     if (public_keys_length) {
@@ -156,16 +186,31 @@ int main(int argc, char* argv[]) {
         }
         mlt_keys_output << "END KEYS" << '\n';
     }
+
+    names_length = names.size();
+    if (names_length) {
+        mlt_keys_output << "NAMES" << '\n';
+        for (size_t i = 0; i < names_length; i++) {
+            mlt_keys_output << names[i] << '\n';
+        }
+        mlt_keys_output << "END NAMES" << '\n';
+    }
     
     mlt_keys_output << "ASSINATURAS" << '\n';
     assinaturas.push_back(&assinatura);
+    assinaturas_names.push_back(subjNameFound);
     assinaturas_length = assinaturas.size();
     for (size_t i = 0; i < assinaturas_length; i++) {
+        mlt_keys_output << assinaturas_names[i] << '\n';
         mlt_keys_output << (*assinaturas[i]).toHex() << '\n';
     }
 
     mlt_keys_output << "HASH" << '\n';
     mlt_keys_output << hash.toHex() << endl;
+
+    /*
+        Parte de encriptar mlt_keys novamente.
+    */
 
     mlt_keys_output.close();
 
