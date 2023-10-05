@@ -8,4 +8,11 @@
 -  `libp11-dev`
 -  [LibCryptoSEC](https://github.com/LabSEC/libcryptosec)
 
+## 3. Build:
+Estando na raíz do projeto, onde está localizado o arquivo _Makefile_.
+
+Execute: `make all`
+
+Os binários resultantes estarão no diretório _bin/_
+
 Code by Giovane Pimentel de Sousa
