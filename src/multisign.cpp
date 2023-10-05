@@ -44,10 +44,16 @@ int main(int argc, char* argv[]) {
 							certificateStr += line +'\n';
 						}
 
-						Certificate certificadoAtual = Certificate(certificateStr);
-						string nomeAtual = certificadoAtual.getSubject().getEntries(RDNSequence::COMMON_NAME)[0];
-						mlt_keys_output << certificadoAtual.getPublicKey()->getPemEncoded();
-						names.push_back(nomeAtual);
+						try {
+							Certificate certificadoAtual = Certificate(certificateStr);
+							string nomeAtual = certificadoAtual.getSubject().getEntries(RDNSequence::COMMON_NAME)[0];
+							mlt_keys_output << certificadoAtual.getPublicKey()->getPemEncoded();
+							names.push_back(nomeAtual);
+						} catch(EncodeException e) {
+							cerr << "Arquivo fora do modelo de certificado x509 encontrado." << '\n';
+							cerr << "Coloque somente certificados válidos no diretório." << endl;
+							return 1;
+						}
 
 						fileOpened.close();
 					} else {

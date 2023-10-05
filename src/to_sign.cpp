@@ -115,6 +115,7 @@ int main(int argc, char* argv[]) {
 
     if (argc == 1) {
         if (public_keys_length) {
+            cout << "Ainda não foi possível entrar em um acordo." << '\n';
             cout << "Faltam as assinaturas de:" << '\n';
             for (size_t i = 0; i < names_length; i++) {
                 std::cout << names[i] << '\n';
@@ -145,7 +146,7 @@ int main(int argc, char* argv[]) {
         std::ifstream filePrivateKey(argv[2], std::ios::in);
 
         if (!filePrivateKey) {
-            cerr << "Erro ao encontrar o arquivo da chave privada." << endl;
+            cerr << "Arquivo de chave privada não encontrado." << endl;
             return 1;
         }
 
@@ -155,10 +156,16 @@ int main(int argc, char* argv[]) {
             privateKeyStr += line + '\n';
         }
 
-        RSAPrivateKey privateKey = RSAPrivateKey(privateKeyStr);
+        try {
+            RSAPrivateKey privateKey = RSAPrivateKey(privateKeyStr);
+            assinatura = Signer::sign(privateKey, hash, MessageDigest::SHA256);
+        } catch(EncodeException e) {
+            cerr << "Coloque um arquivo no formato de chave privada PEM!" << endl;
+            return 1;
+        }
+
         bool verify;
         bool found = false;
-        assinatura = Signer::sign(privateKey, hash, MessageDigest::SHA256);
 
         for (size_t i = 0; i < public_keys_length; i++) {
             verify = Signer::verify(*(public_keys[i]), assinatura, hash, MessageDigest::SHA256);
