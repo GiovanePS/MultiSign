@@ -59,6 +59,13 @@ int main(int argc, char* argv[]) {
 			}
 			mlt_keys_output << "END KEYS" << '\n';
 			closedir(dir);
+
+			mlt_keys_output << "NAMES" << '\n';
+			size_t qntNames = names.size();
+			for (size_t i = 0; i < qntNames; i++) {
+				mlt_keys_output << names[i] << '\n';
+			}
+			mlt_keys_output << "END NAMES" << '\n';
 		} else {
 			cerr << "Erro ao abrir pasta." << endl;
 			return 1;
