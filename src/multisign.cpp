@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 						fileOpened.close();
 					} else {
 						cerr << "Ocorreu um erro ao abrir um dos arquivos da pasta." << '\n';
-						cerr << "Deixe somente arquvos de chave pública na pasta." << endl;
+						cerr << "Deixe somente certificados no modelo x509 na pasta." << endl;
 						return 1;
 					}
 				}
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 	string flag2 = argv[3];
 	if (flag2 == "-i" || flag2 == "--input") {
 		// Abrir arquivo PDF que irá ser assinado.
-		std::ifstream docInputFile(argv[4], std::ios::binary);
+		std::ifstream docInputFile(argv[4], std::ios::in);
 
 		if (docInputFile) {
 			MessageDigest msgDgst = MessageDigest(MessageDigest::SHA256);
