@@ -6,7 +6,7 @@
 ## 2. Dependências:
 -  LibSSL: `libssl-dev`
 -  Libp11: `libp11-dev`
--  OpenSSL v1.0.2
+-  [OpenSSL v1.0.2](https://www.openssl.org/source/old/1.0.2/)
 -  [LibCryptoSEC](https://github.com/LabSEC/libcryptosec)
 
 ### Instalação automatizada das dependências:
