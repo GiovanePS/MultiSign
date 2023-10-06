@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <fstream>
 #include <dirent.h>
 #include <certificate/Certificate.h>
@@ -24,7 +25,10 @@ int main(int argc, char* argv[]) {
 	string flag1 = argv[1];
 	if (flag1 == "-c" || flag1 == "--certificates") {
 		// Iterando sobre a pasta dada como argumento de certificates, para guardar as chaves públicas dos certificados em mlt_keys.
-		char* folderPath = argv[2];
+		int dirStrLen = strlen(argv[2]);
+		char folderPath[dirStrLen+1] = {0};
+		strcat(folderPath, argv[2]);
+		strcat(folderPath, "/");
 		DIR* dir = opendir(folderPath);
 		if (dir) {
 			string line;
