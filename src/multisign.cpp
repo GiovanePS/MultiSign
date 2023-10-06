@@ -96,13 +96,19 @@ int main(int argc, char* argv[]) {
 
 			ByteArray bufferByteArray;
 			string buffer;
-			while (getline(docInputFile, buffer)) {
-				bufferByteArray = buffer + '\n';
-				msgDgst.update(bufferByteArray);
-			}
 
-			mlt_keys_output << "HASH" << '\n';
-			mlt_keys_output << msgDgst.doFinal().toHex() << endl;
+			try {
+				while (getline(docInputFile, buffer)) {
+					bufferByteArray = buffer + '\n';
+					msgDgst.update(bufferByteArray);
+				}
+
+				mlt_keys_output << "HASH" << '\n';
+				mlt_keys_output << msgDgst.doFinal().toHex() << endl;
+			} catch (InvalidStateException e) {
+				cerr << "Coloque um arquivo de entrada válido." << endl;
+				return 1;
+			}
 			docInputFile.close();
 		} else {
 			cerr << "Arquivo não encontrado." << '\n';
